@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parking Lots Reservation System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+    <header class="bg-blue-500 text-white py-4 shadow-md">
+        <div class="container mx-auto px-6 flex justify-between items-center">
+            <h1 class="text-2xl font-bold">Parking Lots Reservation System</h1>
+            <nav>
+                {% if user.is_authenticated %}
+                    <p>
+                        Welcome, <span class="font-semibold">{{ user.username }}</span>! 
+                        <a href="{% url 'logout' %}" class="text-yellow-300 hover:text-yellow-200 ml-4">Logout</a>
+                    </p>
+                {% else %}
+                    <div>
+                        <a href="{% url 'login' %}" class="text-white hover:text-yellow-200 px-4">Login</a>
+                        <a href="{% url 'signup' %}" class="text-white hover:text-yellow-200 px-4">Sign Up</a>
+                    </div>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-6 py-8 flex-grow">
+        <h4 class="my-10">Parking Lots</h4>
+        <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for lot in parking_lots %}
+                <li class="bg-white shadow-md rounded-lg p-4 border hover:border-blue-400 transition">
+                    <a href="{% url 'lot_detail' lot.id %}" class="text-lg font-semibold text-blue-500 hover:underline">
+                        {{ lot.name }}
+                    </a>
+                    <p class="text-gray-600 mt-1">{{ lot.location }}</p>
+                </li>
+            {% endfor %}
+        </ul>
+
+
+        <div class="container mt-5" style="width: 100%">
+            <div style="width: 100%" class="my-4">
+              <h4 class="my-10">Number Analytics</h4>
+              <div
+                style="
+                  display: flex;
+                  flex-direction: row;
+                  justify-content: space-between;
+                  align-items: center;
+                "
+              >
+                <div
+                  style="
+                    border: 2px solid rgba(13, 110, 253, 1);
+                    padding: 20px;
+                    border-radius: 10px;
+                    cursor: pointer;
+                    transition: background-color 0.3s ease;
+                  "
+                  onmouseover="this.style.backgroundColor='rgba(173, 216, 230, 1)'"
+                  onmouseout="this.style.backgroundColor='transparent'"
+                >
+                  Total number of Parking Lots available: {{parking_lots_count}}
+                </div>
+                <div
+                  style="
+                    border: 2px solid rgba(13, 110, 253, 1);
+                    padding: 20px;
+                    border-radius: 10px;
+                    cursor: pointer;
+                    transition: background-color 0.3s ease;
+                  "
+                  onmouseover="this.style.backgroundColor='rgba(173, 216, 230, 1)'"
+                  onmouseout="this.style.backgroundColor='transparent'"
+                >
+                  Total number of Parking Spots available: {{parking_spots_count}}
+                </div>
+                <div
+                  style="
+                    border: 2px solid rgba(13, 110, 253, 1);
+                    padding: 20px;
+                    border-radius: 10px;
+                    cursor: pointer;
+                    transition: background-color 0.3s ease;
+                  "
+                  onmouseover="this.style.backgroundColor='rgba(173, 216, 230, 1)'"
+                  onmouseout="this.style.backgroundColor='transparent'"
+                >
+                  Total number of Parking Lots Reserved: {{reservations}}
+                </div>
+                <div
+                  style="
+                    border: 2px solid rgba(13, 110, 253, 1);
+                    padding: 20px;
+                    border-radius: 10px;
+                    cursor: pointer;
+                    transition: background-color 0.3s ease;
+                  "
+                  onmouseover="this.style.backgroundColor='rgba(173, 216, 230, 1)'"
+                  onmouseout="this.style.backgroundColor='transparent'"
+                >
+                  Total Amount Paid: {{amount_paid}} Rwf
+                </div>
+              </div>
+              <div class="mt-5">
+                <h4>Graph Analytics</h4>
+                <div style="display: flex; gap: 50px">
+                  <div style="width: 600px; margin: auto">
+                    <canvas id="projectStatusChart"></canvas>
+                  </div>
+                  <div style="width: 600px; margin: auto">
+                    <canvas id="projectStatusLine"></canvas>
+                  </div>
+                </div>
+              </div>
+        
+              <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        
+              <script>
+                const ctx = document.getElementById('projectStatusChart').getContext('2d');
+                const ctx2 = document.getElementById('projectStatusLine').getContext('2d');
+        
+                const projectStatusData = {
+                  labels: ['Lots', 'Spots', 'Reservations', 'Amount'],
+                  datasets: [{
+                    label: 'Graph Analytics',
+                    data: [{{ parking_lots_count }}, {{ parking_spots_count }}, {{ reservations }}, {{ amount_paid }}],
+                    backgroundColor: ['rgba(75, 192, 192, 0.2)', 'rgba(153, 102, 255, 0.2)', 'rgba(255, 99, 132, 0.2)'],
+                    borderColor: ['rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)', 'rgba(255, 99, 132, 1)'],
+                    borderWidth: 1
+                  }]
+                };
+        
+                const config1 = {
+                  type: 'bar',
+                  data: projectStatusData,
+                  options: {
+                    scales: {
+                      y: {
+                        beginAtZero: true
+                      }
+                    }
+                  }
+                };
+        
+                const config = {
+                  type: 'line',
+                  data: projectStatusData,
+                  options: {
+                    scales: {
+                      y: {
+                        beginAtZero: true
+                      }
+                    }
+                  }
+                };
+        
+                new Chart(ctx, config1);
+                new Chart(ctx2, config)
+              </script>
+            </div>
+    </main>
+
+    <footer class="bg-gray-800 text-white py-4 mt-12">
+        <div class="container mx-auto px-6 text-center text-sm">
+            © 2024 Parking Management. All rights reserved.
+        </div>
+    </footer>
+</body>
+</html>
+
+
+
+{% comment %} payment, dataframes {% endcomment %}
